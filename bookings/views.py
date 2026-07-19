@@ -42,7 +42,14 @@ class BookingView(APIView):
                 )
             
             quantity = int(request.data.get("quantity", 0))
-            
+            if quantity <= 0:
+                return Response(
+                    {
+                        "message": "Quantity must be greater than 0."
+                    },
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+                
             if ticket.available_quantity < quantity:
                 return Response(
                     {
