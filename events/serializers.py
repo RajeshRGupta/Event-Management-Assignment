@@ -1,5 +1,7 @@
 from datetime import date
 from rest_framework import serializers
+
+from venues.models import Venue
 from .models import Event, TicketCategory
 
 from venues.serializers import VenueSerializer
@@ -7,11 +9,17 @@ from venues.serializers import VenueSerializer
 
 class EventSerializer(serializers.ModelSerializer):
     venue = VenueSerializer(read_only=True)
+    venue_id = serializers.PrimaryKeyRelatedField(
+        queryset=Venue.objects.all(),
+        source="venue",
+        write_only=True
+    )
+
     class Meta:
         model = Event
         fields = "__all__"
         read_only_fields = ["organizer"]
-    
+
     def validate_event_date(self, value):
         if value < date.today():
             raise serializers.ValidationError(
@@ -20,7 +28,7 @@ class EventSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        venue = data.get("venue", self.instance.venue if self.instance else None)
+        venue = data.get("venue",self.instance.venue if self.instance else None)
         event_date = data.get("event_date",self.instance.event_date if self.instance else None)
         start = data.get("start_time",self.instance.start_time if self.instance else None)
         end = data.get("end_time",self.instance.end_time if self.instance else None)
@@ -30,8 +38,9 @@ class EventSerializer(serializers.ModelSerializer):
             )
         events = Event.objects.filter(venue=venue,event_date=event_date)
         if self.instance:
-            events = events.exclude(id=self.instance.id)
-            
+            events = events.exclude(
+                id=self.instance.id
+            )
         for event in events:
             if start < event.end_time and end > event.start_time:
                 raise serializers.ValidationError(
@@ -41,6 +50,11 @@ class EventSerializer(serializers.ModelSerializer):
 
 class TicketCategorySerializer(serializers.ModelSerializer):
     event = EventSerializer(read_only=True)
+    event_id = serializers.PrimaryKeyRelatedField(
+        queryset=Event.objects.all(),
+        source="event",
+        write_only=True
+    )
     class Meta:
         model = TicketCategory
         fields = "__all__"
