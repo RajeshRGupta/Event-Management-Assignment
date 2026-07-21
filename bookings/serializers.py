@@ -3,7 +3,7 @@ from .models import Booking
 from events.serializers import TicketCategorySerializer, EventSerializer
 
 class BookingSerializer(serializers.ModelSerializer):
-    tiket_categoty = TicketCategorySerializer(read_only=True)
+    ticket_category = TicketCategorySerializer(read_only=True)
     event = EventSerializer(read_only=True)
     class Meta:
         model = Booking
