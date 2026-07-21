@@ -44,6 +44,17 @@ class EventListCreateView(APIView):
 class EventDetailView(APIView):
     permission_classes = [IsAuthenticated]
 
+    def get(self, request, id):
+        try:
+            event = Event.objects.get(id=id)
+        except Event.DoesNotExist:
+            return Response(
+                {"message": "Event not found."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = EventSerializer(event)
+        return Response(serializer.data)
+
     def put(self, request, id):
         try:
             event = Event.objects.get(id=id)
