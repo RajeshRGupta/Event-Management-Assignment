@@ -18,6 +18,8 @@ class EventListCreateView(APIView):
         else:
             events = Event.objects.all()
         serializer = EventSerializer(events, many=True)
+        # print("Organizer's events:", events[0].vanue)
+        
         return Response(serializer.data)
 
     def post(self, request):

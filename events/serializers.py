@@ -2,8 +2,11 @@ from datetime import date
 from rest_framework import serializers
 from .models import Event, TicketCategory
 
+from venues.serializers import VenueSerializer
+
 
 class EventSerializer(serializers.ModelSerializer):
+    venue = VenueSerializer(read_only=True)
     class Meta:
         model = Event
         fields = "__all__"
@@ -37,6 +40,7 @@ class EventSerializer(serializers.ModelSerializer):
         return data
 
 class TicketCategorySerializer(serializers.ModelSerializer):
+    event = EventSerializer(read_only=True)
     class Meta:
         model = TicketCategory
         fields = "__all__"
